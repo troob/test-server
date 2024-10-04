@@ -5,17 +5,31 @@
 
 import socket
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(("localhost", 9988))
-s.listen(1)
 
 def my_function_that_handles_data(data):
-    #print('data: ' + str(data))
+    print('\n===Handle Data from Client===\n')
     data_str = data.decode()
     print('data_str: ' + str(data_str))
 
-while True:
+
+host = 'localhost' # Standard loopback interface address (localhost)
+port = 9988 # Port to listen on (non-privileged ports are > 1023)
+
+# Echo Server
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((host, port))
+    s.listen(1)
+
     conn, addr = s.accept()
-    data = conn.recv(1024)
-    conn.close()
-    my_function_that_handles_data(data)
+    with conn:
+        print(f"Connected by {addr}")
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+
+            # echo data back to server
+            conn.sendall(data)
+            #my_function_that_handles_data(data)
+
+    
